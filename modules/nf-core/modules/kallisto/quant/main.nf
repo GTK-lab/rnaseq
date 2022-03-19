@@ -25,6 +25,7 @@ process KALLISTO_QUANT {
         [ ! -f  ${sample_id}_1.fastq.gz ] && ln -s $reads ${sample_id}_1.fastq.gz
 
         kallisto quant \\
+             --single   \\
             -i ${kallisto_index} \\
             -o kallisto_results \\
             --seed=1 \\
