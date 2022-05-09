@@ -3,29 +3,27 @@
     KALLISTO QUANTIFICATION
 ===============================================================================
 */
-include { QUANTIFY        } from '../modules/kallisto_quantify'
+include { KALLISTO_QUANTIFY       } from '../../modules/local/kallisto_quantify'
+include { KALLISTO_TX2GENE        } from '../../modules/local/kallisto_tx2gene'
+include { KALLISTO_TXIMPORT       } from '../../modules/local/kallisto_tximport'
 
-workflow KALLISTO {
+include { KALLISTO_SUMMARIZEDEXPERIMENT as KALLISTO_SE_GENE               } from '../../modules/local/kallisto_summarizedexperiment'
+include { KALLISTO_SUMMARIZEDEXPERIMENT as KALLISTO_SE_GENE_LENGTH_SCALED } from '../../modules/local/kallisto_summarizedexperiment'
+include { KALLISTO_SUMMARIZEDEXPERIMENT as KALLISTO_SE_GENE_SCALED        } from '../../modules/local/kallisto_summarizedexperiment'
+include { KALLISTO_SUMMARIZEDEXPERIMENT as KALLISTO_SE_GENE_TRANSCRIPT    } from '../../modules/local/kallisto_summarizedexperiment'
+
+
+workflow QUANTIFY_KALLISTO {
     take:
     reads             // [val(meta), path[reads]]
-    kallisto_index    // path(index)
-    
+    index             // kallisto_index
+    gtf               // genome.gtf
+
     main:
     ch_versions    = Channel.empty()
-    index          = Channel.empty()
 
-
-    kallisto_h5    = Channel.empty()
-    kallisto_stderr = Channel.empty()
-    kallisto_stdout = Channel.empty()
-    kallisto_log    = Channel.empty()
-
-    QUANTIFY(reads, index)
-    kallisto_h5    = QUANTIFY.out.kallisto_abundance_h5
-    kallisto_stderr = QUANTIFY.out.kallisto_stderr_mqc
-    kallisto_stdout = QUANTIFY.out.kallisto_stdout
-    kallisto_log    = QUANTIFY.out.kallisto_json_log
-    ch_versions     = ch_versions.mix(QUANTIFY.out.versions)
+    KALLISTO_QUANTIFY (reads, index)
+    ch_versions = ch_versions.mix(KALLISTO_QUANTIFY.out.versions)
 
     emit:
     index
