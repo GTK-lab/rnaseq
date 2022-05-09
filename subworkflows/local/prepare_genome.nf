@@ -14,6 +14,7 @@ include { UNTAR as UNTAR_STAR_INDEX         } from '../../modules/nf-core/module
 include { UNTAR as UNTAR_RSEM_INDEX         } from '../../modules/nf-core/modules/untar/main'
 include { UNTAR as UNTAR_HISAT2_INDEX       } from '../../modules/nf-core/modules/untar/main'
 include { UNTAR as UNTAR_SALMON_INDEX       } from '../../modules/nf-core/modules/untar/main'
+include { UNTAR as UNTAR_KALLISTO_INDEX     } from '../../modules/nf-core/modules/untar/main'
 
 include { CUSTOM_GETCHROMSIZES              } from '../../modules/nf-core/modules/custom/getchromsizes/main'
 include { GFFREAD                           } from '../../modules/nf-core/modules/gffread/main'
@@ -23,11 +24,13 @@ include { HISAT2_BUILD                      } from '../../modules/nf-core/module
 include { SALMON_INDEX                      } from '../../modules/nf-core/modules/salmon/index/main'
 include { RSEM_PREPAREREFERENCE as RSEM_PREPAREREFERENCE_GENOME } from '../../modules/nf-core/modules/rsem/preparereference/main'
 include { RSEM_PREPAREREFERENCE as MAKE_TRANSCRIPTS_FASTA       } from '../../modules/nf-core/modules/rsem/preparereference/main'
+inculue { KALLISTO_INDEX                    } from '../../modules/nf-core/modules/kallisto/index/main'
 
 include { GTF2BED              } from '../../modules/local/gtf2bed'
 include { CAT_ADDITIONAL_FASTA } from '../../modules/local/cat_additional_fasta'
 include { GTF_GENE_FILTER      } from '../../modules/local/gtf_gene_filter'
 include { STAR_GENOMEGENERATE  } from '../../modules/local/star_genomegenerate'
+
 
 workflow PREPARE_GENOME {
     take:
@@ -232,6 +235,24 @@ workflow PREPARE_GENOME {
         }
     }
 
+    //
+    // Uncompress Kallisto index of generate from scratch if required
+    //
+    ch_kallisto_index = Channel.empty()
+    if ('kallisto' in prepare_tool_indices) {
+        if (params.kallisto_index) {
+            if (params.kallisto_index.endsWith('.tar.gz')) {
+                ch_kallisto_index = UNTAR_KALLISTO_INDEX ( params.kallisto_index ).untar
+                ch_versions       = ch_versions.mix(UNTAR_KALLISTO_INDEX.out.versions)
+            } else {
+                ch_kallisto_index = file(params.kallisto_index)
+            }
+        } else {
+            ch_kallisto_index = KALLISTO_INDEX( ch_transcript_fasta ).index
+            ch_versions       = ch_versions.mix(KALLISTO_INDEX.out.ch_versions)
+        }
+    }
+
     emit:
     fasta            = ch_fasta            //    path: genome.fasta
     gtf              = ch_gtf              //    path: genome.gtf
@@ -245,6 +266,7 @@ workflow PREPARE_GENOME {
     rsem_index       = ch_rsem_index       //    path: rsem/index/
     hisat2_index     = ch_hisat2_index     //    path: hisat2/index/
     salmon_index     = ch_salmon_index     //    path: salmon/index/
+    kallisto_index   = ch_kallisto_index   //    path: kallisto/index/
 
     versions         = ch_versions.ifEmpty(null) // channel: [ versions.yml ]
 }
