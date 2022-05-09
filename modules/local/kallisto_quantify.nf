@@ -12,15 +12,14 @@ process KALLISTO_QUANTIFY {
     path (kallisto_index)
 
     output:
-    tuple val(meta), path('*.kallisto_abundance.*')          , emit: kallisto_abundance
+    tuple val(meta), path("${prefix}")                       , emit: kallisto_results  //abundance.h5  abundance.tsv  run_info.json
     tuple val(meta), path('*.kallisto_stderr.txt')           , emit: kallisto_stderr
     tuple val(meta), path('*.kallisto_stdout.txt')           , emit: kallisto_stdout
-    tuple val(meta), path('*.kallisto_json_log.txt')         , emit: kallisto_json_log
     path "versions.yml"                                      , emit: versions
 
     script:
     def prefix   = task.ext.prefix ?: "${meta.id}"
-    def args     = task.ext.args ?: ''
+    def args     = task.ext.args ?: '' // bootstrap and seed
     if (meta.single_end) {
         """
         [ ! -f  ${prefix}.fastq.gz ] && ln -s $reads ${prefix}.fastq.gz
@@ -29,18 +28,10 @@ process KALLISTO_QUANTIFY {
             $agrs \\
             -i ${kallisto_index} \\
             -t ${task.cpus} \\
-            -o kallisto_results \\
+            -o ${prefix} \\
             ${prefix}.fastq.gz \\
             1> ${prefix}_kallisto_stdout.txt \\
             2> ${prefix}_kallisto_stderr.txt
-
-        if $bootstrap>0
-        then   
-            mv kallisto_results/*.h5 ${prefix}.kallisto_abundance.h5
-        else
-            mv kallisto_results/*.tsv ${prefix}.kallisto_abundance.tsv
-        fi
-        cp kallisto_results/run_info.json ${prefix}.kallisto_json_log.txt
         
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
@@ -56,19 +47,11 @@ process KALLISTO_QUANTIFY {
             $args \\
             -i ${kallisto_index} \\
             -t ${task.cpus} \\
-            -o kallisto_results \\
+            -o ${prefix} \\
             ${reads[0]} \\
             ${reads[1]} \\
             1> ${prefix}.kallisto_stdout.txt \\
             2> ${prefix}.kallisto_stderr.txt
-
-        if $bootstrap>0
-        then   
-            mv kallisto_results/*.h5 ${prefix}.kallisto_abundance.h5
-        else
-            mv kallisto_results/*.tsv ${prefix}.kallisto_abundance.tsv
-        fi
-        cp kallisto_results/run_info.json ${prefix}.kallisto_json_log.txt
         
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
