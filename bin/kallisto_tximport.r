@@ -73,7 +73,7 @@ if (!is.null(tx2gene)) {
         rowData = growdata)
 }
 build_table = function(se.obj, slot) {
-    cbind(rowData(se.obj)[, 1], assays(se.obj)[[slot]])
+    cbind(GENEID=rowData(se.obj)[, 1], assays(se.obj)[[slot]])
 }
 
 if(exists("gse")){
