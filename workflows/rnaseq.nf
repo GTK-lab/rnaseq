@@ -108,7 +108,7 @@ include { ALIGN_STAR     } from '../subworkflows/local/align_star'
 include { QUANTIFY_RSEM  } from '../subworkflows/local/quantify_rsem'
 include { QUANTIFY_SALMON as QUANTIFY_STAR_SALMON } from '../subworkflows/local/quantify_salmon'
 include { QUANTIFY_SALMON as QUANTIFY_SALMON      } from '../subworkflows/local/quantify_salmon'
-
+include { QUANTIFY_KALLISTO                       } from '../subworkflows/local/quantify_kallisto'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     IMPORT NF-CORE MODULES/SUBWORKFLOWS
@@ -663,7 +663,14 @@ workflow RNASEQ {
             ch_versions = ch_versions.mix(DESEQ2_QC_SALMON.out.versions)
         }
     }
-
+    if (params.pseudo_aligner == 'kallisto') {
+        QUANTIFY_KALLISTO(
+            ch_filtered_reads,
+            PREPARE_GENOME.out.kallisto_index,
+            PREPARE_GENOME.out.gtf
+        )
+        ch_versions = ch_versions.mix(QUANTIFY_KALLISTO.out.versions)
+    }
     //
     // MODULE: Pipeline reporting
     //
