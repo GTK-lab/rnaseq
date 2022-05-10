@@ -3,14 +3,14 @@
     KALLISTO QUANTIFICATION
 ===============================================================================
 */
-include { KALLISTO_QUANTIFY       } from '../../modules/local/kallisto_quantify'
+include { KALLISTO_QUANT          } from '../../modules/local/kallisto_quantify'
 include { KALLISTO_TX2GENE        } from '../../modules/local/kallisto_tx2gene'
 include { KALLISTO_TXIMPORT       } from '../../modules/local/kallisto_tximport'
 
 include { KALLISTO_SUMMARIZEDEXPERIMENT as KALLISTO_SE_GENE               } from '../../modules/local/kallisto_summarizedexperiment'
 include { KALLISTO_SUMMARIZEDEXPERIMENT as KALLISTO_SE_GENE_LENGTH_SCALED } from '../../modules/local/kallisto_summarizedexperiment'
 include { KALLISTO_SUMMARIZEDEXPERIMENT as KALLISTO_SE_GENE_SCALED        } from '../../modules/local/kallisto_summarizedexperiment'
-include { KALLISTO_SUMMARIZEDEXPERIMENT as KALLISTO_SE_GENE_TRANSCRIPT    } from '../../modules/local/kallisto_summarizedexperiment'
+include { KALLISTO_SUMMARIZEDEXPERIMENT as KALLISTO_SE_TRANSCRIPT    } from '../../modules/local/kallisto_summarizedexperiment'
 
 
 workflow QUANTIFY_KALLISTO {
@@ -22,41 +22,41 @@ workflow QUANTIFY_KALLISTO {
     main:
     ch_versions    = Channel.empty()
 
-    KALLISTO_QUANTIFY (reads, index)
-    ch_versions = ch_versions.mix(KALLISTO_QUANTIFY.out.versions)
+    KALLISTO_QUANT (reads, index)
+    ch_versions = ch_versions.mix(KALLISTO_QUANT.out.versions)
 
     KALLISTO_TX2GENE ( gtf )
     ch_versions = ch_versions.mix(KALLISTO_TX2GENE.out.versions)
 
-    KALLISTO_TXIMPORT ( KALLISTO_QUANTIFY.out.results.collect{it[1]}, KALLISTO_TX2GENE.out.tsv.collect() )
+    KALLISTO_TXIMPORT ( KALLISTO_QUANT.out.results.collect{it[1]}, KALLISTO_TX2GENE.out.csv.collect() )
     ch_versions = ch_versions.mix(KALLISTO_TXIMPORT.out.versions)
 
     KALLISTO_SE_GENE (
-        SALMON_TXIMPORT.out.counts_gene,
-        SALMON_TXIMPORT.out.tpm_gene,
-        SALMON_TX2GENE.out.tsv.collect()
+        KALLISTO_TXIMPORT.out.counts_gene,
+        KALLISTO_TXIMPORT.out.tpm_gene,
+        KALLISTO_TX2GENE.out.csv.collect()
     )
     ch_versions = ch_versions.mix(KALLISTO_SE_GENE.out.versions)
 
     KALLISTO_SE_GENE_LENGTH_SCALED (
-        SALMON_TXIMPORT.out.counts_gene_length_scaled,
-        SALMON_TXIMPORT.out.tpm_gene_length_scaled,
-        SALMON_TX2GENE.out.tsv.collect()
+        KALLISTO_TXIMPORT.out.counts_gene_length_scaled,
+        KALLISTO_TXIMPORT.out.tpm_gene_length_scaled,
+        KALLISTO_TX2GENE.out.csv.collect()
     )
 
     KALLISTO_SE_GENE_SCALED (
-        SALMON_TXIMPORT.out.counts_gene_scaled,
-        SALMON_TXIMPORT.out.tpm_gene_scaled,
-        SALMON_TX2GENE.out.tsv.collect()
+        KALLISTO_TXIMPORT.out.counts_gene_scaled,
+        KALLISTO_TXIMPORT.out.tpm_gene_scaled,
+        KALLISTO_TX2GENE.out.csv.collect()
     )
 
     KALLISTO_SE_TRANSCRIPT (
-        SALMON_TXIMPORT.out.counts_transcript,
-        SALMON_TXIMPORT.out.tpm_transcript,
-        SALMON_TX2GENE.out.tsv.collect()
-
+        KALLISTO_TXIMPORT.out.counts_transcript,
+        KALLISTO_TXIMPORT.out.tpm_transcript,
+        KALLISTO_TX2GENE.out.csv.collect()
+    )
     emit:
-    results                       = KALLISTO_QUANTIFY.out.results                   // channel: [ val(meta), results_dir ]
+    results                       = KALLISTO_QUANT.out.results                   // channel: [ val(meta), results_dir ]
 
     tpm_gene                      = KALLISTO_TXIMPORT.out.tpm_gene                  // channel: [ val(meta), counts ]
     counts_gene                   = KALLISTO_TXIMPORT.out.counts_gene               // channel: [ val(meta), counts ]

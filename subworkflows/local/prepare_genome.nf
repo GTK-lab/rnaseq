@@ -24,7 +24,7 @@ include { HISAT2_BUILD                      } from '../../modules/nf-core/module
 include { SALMON_INDEX                      } from '../../modules/nf-core/modules/salmon/index/main'
 include { RSEM_PREPAREREFERENCE as RSEM_PREPAREREFERENCE_GENOME } from '../../modules/nf-core/modules/rsem/preparereference/main'
 include { RSEM_PREPAREREFERENCE as MAKE_TRANSCRIPTS_FASTA       } from '../../modules/nf-core/modules/rsem/preparereference/main'
-inculue { KALLISTO_INDEX                    } from '../../modules/nf-core/modules/kallisto/index/main'
+include { KALLISTO_INDEX                    } from '../../modules/nf-core/modules/kallisto/index/main'
 
 include { GTF2BED              } from '../../modules/local/gtf2bed'
 include { CAT_ADDITIONAL_FASTA } from '../../modules/local/cat_additional_fasta'
@@ -109,7 +109,7 @@ workflow PREPARE_GENOME {
     //
     if (params.transcript_fasta) {
         if (params.transcript_fasta.endsWith('.gz')) {
-            ch_transcript_fasta = GUNZIP_TRANSCRIPT_FASTA ( [:], params.transcript_fasta ).gunzip.map { it[1] }
+            ch_transcript_fasta = GUNZIP_TRANSCRIPT_FASTA ( [[:], params.transcript_fasta ]).gunzip.map { it[1] }
             ch_versions         = ch_versions.mix(GUNZIP_TRANSCRIPT_FASTA.out.versions)
         } else {
             ch_transcript_fasta = file(params.transcript_fasta)

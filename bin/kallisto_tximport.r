@@ -41,7 +41,7 @@ se = SummarizedExperiment(assays = list(
         counts = txi[["counts"]],
         abundance = txi[["abundance"]],
         length = txi[["length"]]),
-    colData = DataFrame(coldata)
+    colData = DataFrame(coldata),
     rowData = data.frame(TX = rownames(txi[["counts"]]))
 )
 
@@ -65,7 +65,7 @@ if (!is.null(tx2gene)) {
             length = gi.ls[["length"]]),
         colData = DataFrame(coldata),
         rowData = growdata)
-    gse   = SummarizedExperiment(assays = list(
+    gse.s  = SummarizedExperiment(assays = list(
             counts = gi.s[["counts"]],
             abundance = gi.s[["abundance"]],
             length = gi.s[["length"]]),
@@ -73,7 +73,7 @@ if (!is.null(tx2gene)) {
         rowData = growdata)
 }
 build_table = function(se.obj, slot) {
-    cbind(GENEID=rowData(se.obj)[, 1], assays(se.obj)[[slot]])
+    cbind(rowData(se.obj)[, 1], assays(se.obj)[[slot]])
 }
 
 if(exists("gse")){

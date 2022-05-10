@@ -19,7 +19,7 @@ process KALLISTO_TX2GENE {
 
     script: 
     """
-    Rscript ../../bin/kallisto_tx2gene.r ${gtf}
+    kallisto_tx2gene.r ${gtf}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

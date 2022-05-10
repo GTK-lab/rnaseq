@@ -1,4 +1,4 @@
-process KALLISTO_QUANTIFY {
+process KALLISTO_QUANT {
     tag "$meta.id"
     label "process_high"
 
@@ -12,7 +12,7 @@ process KALLISTO_QUANTIFY {
     path (kallisto_index)
 
     output:
-    tuple val(meta), path("${prefix}")                       , emit: kallisto_results  //abundance.h5  abundance.tsv  run_info.json
+    tuple val(meta), path("${prefix}")                       , emit: results  //abundance.h5  abundance.tsv  run_info.json
     tuple val(meta), path('*.kallisto_stderr.txt')           , emit: kallisto_stderr
     tuple val(meta), path('*.kallisto_stdout.txt')           , emit: kallisto_stdout
     path "versions.yml"                                      , emit: versions

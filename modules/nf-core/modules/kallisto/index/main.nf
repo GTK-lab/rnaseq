@@ -25,7 +25,10 @@ process KALLISTO_INDEX {
         $args \\
         -i kallisto \\
         $fasta
+        
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         kallisto: \$(echo \$(kallisto 2>&1) | sed 's/^kallisto //; s/Usage.*\$//')
     END_VERSIONS
+    """
+}

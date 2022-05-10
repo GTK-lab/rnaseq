@@ -3,11 +3,11 @@ process KALLISTO_TXIMPORT {
 
     conda (params.enable_conda ? "bioconda::bioconductor-tximeta=1.8.0" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/bioconductor-tximeta:1.8.0--r40_0' :
-        'quay.io/biocontainers/bioconductor-tximeta:1.8.0--r40_0' }"
+        'library://plateau-gao/rnaseq/rhd5andtximeta:latest' :
+        'littleplateau/rhd5andtximeta' }"
 
     input:
-    path ("salmon/*")
+    path ("kallisto/*")
     path (tx2gene)
 
     output:
@@ -26,7 +26,7 @@ process KALLISTO_TXIMPORT {
 
     script:
     """
-    Rscript ../../bin/kallisto_tximport.r \\
+    kallisto_tximport.r \\
         NULL \\
         kallisto \\
         kallisto.merged
