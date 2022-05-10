@@ -18,16 +18,14 @@ if (info$size == 0) {
     tx2gene = rowdata
 }
 
-counts = read.csv(counts_fn, sep="\t")
-counts = counts[, 2:ncol(counts), drop = FALSE]
-tpm = read.csv(tpm_fn, sep="\t")
-tpm = tpm[, 2:ncol(tpm), drop = FALSE]
+counts = read.csv(counts_fn, sep="\t", row.names = 1)
+tpm = read.csv(tpm_fn, sep="\t", row.names = 1)
+coldata = data.frame(files = colnames(counts), names = colnames(counts))
 
 se = SummarizedExperiment(
     assays = list(
         counts = counts,
-        abundance = tpm
-    ),
+        abundance = tpm),
     colData = DataFrame(coldata)
 )
 saveRDS(se, file = paste0(tools::file_path_sans_ext(counts_fn), ".rds"))

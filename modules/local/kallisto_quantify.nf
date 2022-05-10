@@ -13,8 +13,7 @@ process KALLISTO_QUANT {
 
     output:
     tuple val(meta), path("${prefix}")                       , emit: results  //abundance.h5  abundance.tsv  run_info.json
-    tuple val(meta), path('*.kallisto_stderr.txt')           , emit: kallisto_stderr
-    tuple val(meta), path('*.kallisto_stdout.txt')           , emit: kallisto_stdout
+
     path "versions.yml"                                      , emit: versions
 
     script:
@@ -32,6 +31,9 @@ process KALLISTO_QUANT {
             ${prefix}.fastq.gz \\
             1> ${prefix}_kallisto_stdout.txt \\
             2> ${prefix}_kallisto_stderr.txt
+
+        mv ${prefix}_kallisto_stdout.txt ${prefix}/
+        mv ${prefix}_kallisto_stderr.txt ${prefix}/            
         
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
@@ -50,9 +52,12 @@ process KALLISTO_QUANT {
             -o ${prefix} \\
             ${reads[0]} \\
             ${reads[1]} \\
-            1> ${prefix}.kallisto_stdout.txt \\
-            2> ${prefix}.kallisto_stderr.txt
-        
+            1> ${prefix}_kallisto_stdout.txt \\
+            2> ${prefix}_kallisto_stderr.txt
+
+        mv ${prefix}_kallisto_stdout.txt ${prefix}/
+        mv ${prefix}_kallisto_stderr.txt ${prefix}/  
+
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
             kallisto: \$(echo \$(kallisto 2>&1) | sed 's/^kallisto //; s/Usage.*\$//')
