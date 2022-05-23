@@ -22,7 +22,7 @@ if (params.pseudo_aligner)  { prepareToolIndices << params.pseudo_aligner }
 
 if (params.input) { ch_input = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
 
-workflow RNASEQ{
+workflow TEST_KALLISTO{
     ch_versions = Channel.empty()
 
     
