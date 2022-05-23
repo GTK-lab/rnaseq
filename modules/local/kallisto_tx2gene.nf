@@ -2,10 +2,10 @@ process KALLISTO_TX2GENE {
     tag "$gtf"
     label "process_low"
 
-    conda (params.enable_conda ? "bioconda::bioconductor-genomicfeatures=1.46.1" : null)
+    conda (params.enable_conda ? "conda-forge::python=3.9.5" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/bioconductor-genomicfeatures:1.46.1--r41hdfd78af_0' :
-        'quay.io/biocontainers/bioconductor-genomicfeatures:1.46.1--r41hdfd78af_0' }"
+        'https://depot.galaxyproject.org/singularity/python:3.9--1' :
+        'quay.io/biocontainers/python:3.9--1' }"
 
     input:
     path gtf
@@ -19,7 +19,7 @@ process KALLISTO_TX2GENE {
 
     script: 
     """
-    kallisto_tx2gene.r ${gtf}
+    cat ${gtf} | tx2gene.py > tx2gene.csv
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
