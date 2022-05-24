@@ -11,7 +11,7 @@ process KALLISTO_TX2GENE {
     path gtf
 
     output:
-    path "*.csv"       , emit: csv
+    path "*.tsv"       , emit: tsv
     path "versions.yml", emit: versions
 
     when:
@@ -19,7 +19,7 @@ process KALLISTO_TX2GENE {
 
     script: 
     """
-    cat ${gtf} | tx2gene.py > tx2gene.csv
+    cat ${gtf} | python ${projectDir}/bin/tx2gene.py > kallisto_tx2gene.tsv
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

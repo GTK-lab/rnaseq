@@ -28,32 +28,32 @@ workflow QUANTIFY_KALLISTO {
     KALLISTO_TX2GENE ( gtf )
     ch_versions = ch_versions.mix(KALLISTO_TX2GENE.out.versions)
 
-    KALLISTO_TXIMPORT ( KALLISTO_QUANT.out.results.collect{it[1]}, KALLISTO_TX2GENE.out.csv.collect() )
+    KALLISTO_TXIMPORT ( KALLISTO_QUANT.out.results.collect{it[1]}, KALLISTO_TX2GENE.out.tsv.collect() )
     ch_versions = ch_versions.mix(KALLISTO_TXIMPORT.out.versions)
 
     KALLISTO_SE_GENE (
         KALLISTO_TXIMPORT.out.counts_gene,
         KALLISTO_TXIMPORT.out.tpm_gene,
-        KALLISTO_TX2GENE.out.csv.collect()
+        KALLISTO_TX2GENE.out.tsv.collect()
     )
     ch_versions = ch_versions.mix(KALLISTO_SE_GENE.out.versions)
 
     KALLISTO_SE_GENE_LENGTH_SCALED (
         KALLISTO_TXIMPORT.out.counts_gene_length_scaled,
         KALLISTO_TXIMPORT.out.tpm_gene_length_scaled,
-        KALLISTO_TX2GENE.out.csv.collect()
+        KALLISTO_TX2GENE.out.tsv.collect()
     )
 
     KALLISTO_SE_GENE_SCALED (
         KALLISTO_TXIMPORT.out.counts_gene_scaled,
         KALLISTO_TXIMPORT.out.tpm_gene_scaled,
-        KALLISTO_TX2GENE.out.csv.collect()
+        KALLISTO_TX2GENE.out.tsv.collect()
     )
 
     KALLISTO_SE_TRANSCRIPT (
         KALLISTO_TXIMPORT.out.counts_transcript,
         KALLISTO_TXIMPORT.out.tpm_transcript,
-        KALLISTO_TX2GENE.out.csv.collect()
+        KALLISTO_TX2GENE.out.tsv.collect()
     )
     emit:
     results                       = KALLISTO_QUANT.out.results                   // channel: [ val(meta), results_dir ]
