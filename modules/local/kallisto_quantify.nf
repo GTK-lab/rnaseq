@@ -17,7 +17,7 @@ process KALLISTO_QUANT {
     path "versions.yml"                                      , emit: versions
 
     script:
-    def prefix   = task.ext.prefix ?: "${meta.id}"
+    prefix   = task.ext.prefix ?: "${meta.id}"
     def args     = task.ext.args ?: '' // bootstrap and seed
     if (meta.single_end) {
         """

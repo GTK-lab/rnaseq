@@ -21,7 +21,7 @@ process KALLISTO_SUMMARIZEDEXPERIMENT {
 
     script: // This script is bundled with the pipeline, in nf-core/rnaseq/bin/
     """
-    kallisto_summarizedexperiment.r \\
+    Rscript ${projectDir}/bin/kallisto_summarizedexperiment.r \\
         NULL \\
         $counts \\
         $tpm

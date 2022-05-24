@@ -26,7 +26,7 @@ process KALLISTO_TXIMPORT {
 
     script:
     """
-    kallisto_tximport.r \\
+    Rscript ${projectDir}/bin/kallisto_tximport.r \\
         NULL \\
         kallisto \\
         kallisto.merged
