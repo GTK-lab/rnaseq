@@ -1,28 +1,36 @@
-# ===================================================================== #
-#  Transcript-level estimates improve gene-level inferences
-# ===================================================================== #
-library(tximport)
-library(SummarizedExperiment)
+#!/usr/bin/env Rscript
 
-agrs = commandArgs(trailingOnly = TRUE)
-# args: NULL, kallisto, kallisto_merge
+library(SummarizedExperiment)
+library(tximport)
+
+args = commandArgs(trailingOnly=TRUE)
 if (length(args) < 2) {
-    stop("Usage: kallisto_tximport.r <coldata> <salmon_out>", call. = FALSE)
+    stop("Usage: kallisto_tximport.r <coldata> <salmon_out>", call.=FALSE)
 }
 
-coldata     = agrs[1] # NULL
-path        = agrs[2] # kallisto
-sample_name = args[3] # kallisto_merge
+# arguments
+coldata     = args[1] # NULL
+path        = args[2] # kallisto
+sample_name = args[3] # kallisto.merge
 
+# read in tx2gene.tsv file
 prefix  = sample_name
-tx2gene = "kallisto_tx2gene.csv"
-rowdata = read.csv(tx2gene) # colnames(rowdata): TXNAME, GENEID
-tx2gene = rowdata
+tx2gene = "kallisto_tx2gene.tsv"
+info    = file.info(tx2gene)
+if (info$size == 0) {
+    tx2gene = NULL
+} else {
+    rowdata           = read.csv(tx2gene, sep="\t", header = FALSE)
+    colnames(rowdata) = c("tx", "gene_id", "gene_name")
+    tx2gene           = rowdata[,1:2]
+}
 
-fns   = list.files(path, pattern = "abundance.tsv", recursive = T, full.names = T)
-names = basename(dirname(fns)) # meta.id or prefix setted by customers
+# prepare abundance.tsv files
+fns        = list.files(path, pattern = "abundance.tsv", recursive = T, full.names = T)
+names      = basename(dirname(fns))
 names(fns) = names
 
+# prepare coldata
 if (file.exists(coldata)) {
     coldata = read.csv(coldata, sep="\t")
     coldata = coldata[match(names, coldata[,1]),]
@@ -32,48 +40,46 @@ if (file.exists(coldata)) {
     coldata = data.frame(files = fns, names = names)
 }
 
-txi = tximport (fns, type = "kallisto", txOut = TRUE)
+# Read in abundance.tsv files
+txi               = tximport(fns, type = "kallisto", txOut = TRUE)
 rownames(coldata) = coldata[["names"]]
-rownames(rowdata) = rowdata[["TXNAME"]]
+extra             = setdiff(rownames(txi[[1]]),  as.character(rowdata[["tx"]]))
 
-# counts of transcripts
-se = SummarizedExperiment(assays = list(
-        counts = txi[["counts"]],
-        abundance = txi[["abundance"]],
-        length = txi[["length"]]),
-    colData = DataFrame(coldata),
-    rowData = data.frame(TX = rownames(txi[["counts"]]))
-)
-
-# counts of genes
-if (!is.null(tx2gene)) {
-    gi    = summarizeToGene(txi, tx2gene = tx2gene, ignoreTxVersion = TRUE)
-    gi.ls = summarizeToGene(txi, tx2gene = tx2gene, countsFromAbundance = "lengthScaledTPM", ignoreTxVersion = TRUE)
-    gi.s  = summarizeToGene(txi, tx2gene = tx2gene, countsFromAbundance = "scaledTPM", ignoreTxVersion = TRUE)
-    growdata = data.frame(GENEID = unique(tx2gene[,2]))
-    growdata = data.frame(GENEID = growdata[match(rownames(gi[[1]]), growdata[["GENEID"]]), ])
-
-    gse   = SummarizedExperiment(assays = list(
-            counts = gi[["counts"]],
-            abundance = gi[["abundance"]],
-            length = gi[["length"]]),
-        colData = DataFrame(coldata),
-        rowData = growdata)
-    gse.ls = SummarizedExperiment(assays = list(
-            counts = gi.ls[["counts"]],
-            abundance = gi.ls[["abundance"]],
-            length = gi.ls[["length"]]),
-        colData = DataFrame(coldata),
-        rowData = growdata)
-    gse.s  = SummarizedExperiment(assays = list(
-            counts = gi.s[["counts"]],
-            abundance = gi.s[["abundance"]],
-            length = gi.s[["length"]]),
-        colData = DataFrame(coldata),
-        rowData = growdata)
+if (length(extra) > 0) {
+    rowdata = rbind(rowdata, data.frame(tx=extra, gene_id=extra, gene_name=extra))
 }
+
+rowdata           = rowdata[match(rownames(txi[[1]]), as.character(rowdata[["tx"]])),]
+rownames(rowdata) = rowdata[["tx"]]
+
+# Build Transcripts SummarizedExperiment
+se = SummarizedExperiment(assays = list(counts = txi[["counts"]], abundance = txi[["abundance"]], length = txi[["length"]]),
+                        colData = DataFrame(coldata),
+                        rowData = rowdata)
+
+# Build Gene SummarizedExperiment
+if (!is.null(tx2gene)) {
+    gi       = summarizeToGene(txi, tx2gene = tx2gene)
+    gi.ls    = summarizeToGene(txi, tx2gene = tx2gene,countsFromAbundance="lengthScaledTPM")
+    gi.s     = summarizeToGene(txi, tx2gene = tx2gene,countsFromAbundance="scaledTPM")
+    growdata = unique(rowdata[,2:3])
+    growdata = growdata[match(rownames(gi[[1]]), growdata[["gene_id"]]),]
+    rownames(growdata) = growdata[["tx"]]
+
+    gse    = SummarizedExperiment(assays = list(counts = gi[["counts"]], abundance = gi[["abundance"]], length = gi[["length"]]),
+                                colData = DataFrame(coldata),
+                                rowData = growdata)
+    gse.ls = SummarizedExperiment(assays = list(counts = gi.ls[["counts"]], abundance = gi.ls[["abundance"]], length = gi.ls[["length"]]),
+                                colData = DataFrame(coldata),
+                                rowData = growdata)
+    gse.s  = SummarizedExperiment(assays = list(counts = gi.s[["counts"]], abundance = gi.s[["abundance"]], length = gi.s[["length"]]),
+                                colData = DataFrame(coldata),
+                                rowData = growdata)
+}
+
+# Build function to save the results
 build_table = function(se.obj, slot) {
-    cbind(rowData(se.obj)[, 1], assays(se.obj)[[slot]])
+    cbind(rowData(se.obj)[,1:2], assays(se.obj)[[slot]])
 }
 
 if(exists("gse")){
@@ -85,5 +91,9 @@ if(exists("gse")){
     write.table(build_table(gse.s, "counts"), paste(c(prefix, "gene_counts_scaled.tsv"), collapse="."), sep="\t", quote=FALSE, row.names = FALSE)
 }
 
-write.table(build_table(se,"abundance"), paste(c(prefix, "transcript_tpm.tsv"), collapse="."), sep="\t", quote=FALSE, row.names = FALSE)
-write.table(build_table(se, "counts"), paste(c(prefix, "transcript_counts.tsv"), collapse="."), sep="\t", quote=FALSE, row.names = FALSE)
+write.table(build_table(se,"abundance"), paste(c(prefix, "transcript_tpm.tsv"), collapse="."), sep="\t", quote=FALSE)
+write.table(build_table(se, "counts"), paste(c(prefix, "transcript_counts.tsv"), collapse="."), sep="\t", quote=FALSE)
+
+# Print sessioninfo to standard out
+citation("tximeta")
+sessionInfo()
