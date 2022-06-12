@@ -19,7 +19,7 @@ process KALLISTO_TX2GENE {
 
     script: 
     """
-    cat ${gtf} | python ${projectDir}/bin/tx2gene.py > kallisto_tx2gene.tsv
+    cat ${gtf} | python ${projectDir}/bin/kallisto_tx2gene.py > kallisto_tx2gene.tsv
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
