@@ -101,7 +101,7 @@ workflow TEST_KALLISTO{
             if (params.kallisto_bootstrap > 0) {
                 SLEUTH_QC_KALLISTO (
                     QUANTIFY_KALLISTO.out.results,
-                    QUANTIFY_KALLISTO.out.tsv,
+                    QUANTIFY_KALLISTO.out.tx2gene,
                     ch_pca_header_multiqc,
                     ch_clustering_header_multiqc               
                 )
