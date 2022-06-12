@@ -9,16 +9,16 @@ process SLEUTH_QC {
     input:
     tuple val(meta), path("kallieto/*")
     path (tx2gene)
-    path (pca_header_multiqc)
-    path (clustering_header_multiqc)
+    //path (pca_header_multiqc)
+    //path (clustering_header_multiqc)
 
     output:
     path "*.pdf"                , optional: true, emit: pdf
     path "*.RData"              , optional: true, emit: rdata
     path "*.pca.vals.txt"       , optional: true, emit: pca_txt
-    path "*.pca.vals.mqc.tsv"   , optional: true, emit: pca_multiqc
+    //path "*.pca.vals.mqc.tsv"   , optional: true, emit: pca_multiqc
     path "*sample.dists.txt"    , optional:true, emit: dists_txt
-    path "*sample.dists_mqc.tsv", optional:true, emit: dists_multiqc
+    //path "*sample.dists_mqc.tsv", optional:true, emit: dists_multiqc
     path "*.log"                , optional:true, emit: log
     path "norm_factors"         , optional:true, emit: norm_factors
     path "versions.yml"         , emit: versions
@@ -38,16 +38,16 @@ process SLEUTH_QC {
         --outdir ./ \\
         --cores $task.cpus \\
         $args
+   
+    #if [ -f "R_sessionInfo.log" ]; then
+    #    sed "s/sleuth_pca/${label_lower}_sleuth_pca/g" <$pca_header_multiqc >tmp.txt
+    #    sed -i -e "s/Sleuth PCA/${label_upper} Sleuth PCA/g" tmp.txt
+    #    cat tmp.txt *.pca.vals.txt > ${label_lower}.pca.vals_mqc.tsv
 
-    if [ -f "R_sessionInfo.log" ]; then
-        sed "s/sleuth_pca/${label_lower}_sleuth_pca/g" <$pca_header_multiqc >tmp.txt
-        sed -i -e "s/Sleuth PCA/${label_upper} Sleuth PCA/g" tmp.txt
-        cat tmp.txt *.pca.vals.txt > ${label_lower}.pca.vals_mqc.tsv
-
-        sed "s/sleuth_clustering/${label_lower}_sleuth_clustering/g" <$clustering_header_multiqc >tmp.txt
-        sed -i -e "s/Sleuth sample/${label_upper} Sleuth sample/g" tmp.txt
-        cat tmp.txt *.sample.dists.txt > ${label_lower}.sample.dists_mqc.tsv
-    fi
+    #    sed "s/sleuth_clustering/${label_lower}_sleuth_clustering/g" <$clustering_header_multiqc >tmp.txt
+    #    sed -i -e "s/Sleuth sample/${label_upper} Sleuth sample/g" tmp.txt
+    #    cat tmp.txt *.sample.dists.txt > ${label_lower}.sample.dists_mqc.tsv
+    #fi
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
