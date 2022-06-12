@@ -18,8 +18,8 @@ include { MARK_DUPLICATES_PICARD     } from './subworkflows/nf-core/mark_duplica
 include { INPUT_CHECK    } from './subworkflows/local/input_check'
 include { CAT_FASTQ                   } from './modules/nf-core/modules/cat/fastq/main'
 
-include { DESEQ2_QC as DESEQ2_QC_KALLISTO }  from '../modules/local/deseq2_qc'
-include { SLEUTH_QC as SLEUTH_QC_KALLISTO }  from '../modules/local/sleuth_qc'
+include { DESEQ2_QC as DESEQ2_QC_KALLISTO }  from './modules/local/deseq2_qc'
+include { SLEUTH_QC as SLEUTH_QC_KALLISTO }  from './modules/local/sleuth_qc'
 
 def anno_readme = params.genomes[ params.genome ]?.readme
 if (anno_readme && file(anno_readme).exists()) {
