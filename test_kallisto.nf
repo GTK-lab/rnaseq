@@ -101,12 +101,12 @@ workflow TEST_KALLISTO{
             if (params.kallisto_bootstrap > 0) {
                 SLEUTH_QC_KALLISTO (
                     QUANTIFY_KALLISTO.out.results,
-                    QUANTIFY_KALLISTO.out.tx2gene,
-                    \\ch_pca_header_multiqc, 
-                    \\ch_clustering_header_multiqc               
+                    QUANTIFY_KALLISTO.out.tx2gene
+                    // ch_pca_header_multiqc, 
+                    // ch_clustering_header_multiqc               
                 )
-                \\ch_pseudoaligner_pca_multiqc        = SLEUTH_QC_KALLISTO.out.pca_multiqc
-                \\ch_pseudoaligner_clustering_multiqc = SLEUTH_QC_KALLISTO.out.dists_multiqc
+                // ch_pseudoaligner_pca_multiqc        = SLEUTH_QC_KALLISTO.out.pca_multiqc
+                // ch_pseudoaligner_clustering_multiqc = SLEUTH_QC_KALLISTO.out.dists_multiqc
                 ch_versions = ch_versions.mix(SLEUTH_QC_KALLISTO.out.versions)
             } else if (!params.skip_deseq2_qc) {
                 DESEQ2_QC_KALLISTO (
