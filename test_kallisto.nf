@@ -98,7 +98,7 @@ workflow TEST_KALLISTO{
         ch_versions         = ch_versions.mix(QUANTIFY_KALLISTO.out.versions)
     
         if ( !params.skip_qc ) {
-            if (params.bootstrap > 0) {
+            if (params.kallisto_bootstrap > 0) {
                 SLEUTH_QC_KALLISTO (
                     QUANTIFY_KALLISTO.out.results,
                     QUANTIFY_KALLISTO.out.tsv,
