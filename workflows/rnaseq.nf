@@ -663,14 +663,6 @@ workflow RNASEQ {
             ch_versions = ch_versions.mix(DESEQ2_QC_SALMON.out.versions)
         }
     }
-    if (params.pseudo_aligner == 'kallisto') {
-        QUANTIFY_KALLISTO(
-            ch_filtered_reads,
-            PREPARE_GENOME.out.kallisto_index,
-            PREPARE_GENOME.out.gtf
-        )
-        ch_versions = ch_versions.mix(QUANTIFY_KALLISTO.out.versions)
-    }
     //
     // MODULE: Pipeline reporting
     //
