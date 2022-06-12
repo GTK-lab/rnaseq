@@ -7,7 +7,7 @@ process SLEUTH_QC {
         'littleplateau/rnaseq_sleuth' }"    
     
     input:
-    path ("kallisto/*")
+    tuple val(meta), path("kallieto/*")
     path (tx2gene)
     path (pca_header_multiqc)
     path (clustering_header_multiqc)
