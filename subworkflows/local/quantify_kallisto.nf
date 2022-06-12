@@ -57,6 +57,7 @@ workflow QUANTIFY_KALLISTO {
     )
     emit:
     results                       = KALLISTO_QUANT.out.results                   // channel: [ val(meta), results_dir ]
+    tx2gene                       = KALLISTO_TX2GENE.out.tsv
 
     tpm_gene                      = KALLISTO_TXIMPORT.out.tpm_gene                  // channel: [ val(meta), counts ]
     counts_gene                   = KALLISTO_TXIMPORT.out.counts_gene               // channel: [ val(meta), counts ]
