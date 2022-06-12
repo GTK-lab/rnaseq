@@ -11,7 +11,7 @@ process KALLISTO_INDEX {
     path fasta
 
     output:
-    path "kallisto" ,     emit: index
+    path "kallisto.idx" ,     emit: index
     path "versions.yml" , emit: versions
 
     when:
@@ -23,7 +23,7 @@ process KALLISTO_INDEX {
     kallisto \\
         index \\
         $args \\
-        -i kallisto \\
+        -i kallisto.idx \\
         $fasta
         
     cat <<-END_VERSIONS > versions.yml
