@@ -1,0 +1,18 @@
+BootStrap: library
+From: library://pablormier/permedcoe/r-base:4.1.2
+
+%post
+    apt-get update && apt-get install -y \
+	libssl-dev \
+	libcurl4-openssl-dev \
+	libxml2-dev \
+	zlib1g-dev \
+	libbz2-dev
+    R -e "install.packages('BiocManager', repos = 'http://cran.rstudio.com/')"
+    R -e "BiocManager::install(c('rhdf5', 'tximeta'))"
+
+%environment
+    export LC_ALL=C
+
+%labels
+    Plateau - Gao
