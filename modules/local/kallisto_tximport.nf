@@ -3,8 +3,8 @@ process KALLISTO_TXIMPORT {
 
     conda (params.enable_conda ? "bioconda::bioconductor-tximeta=1.8.0" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'library://plateau-gao/rnaseq/rhd5andtximeta:latest' :
-        'littleplateau/rhd5andtximeta' }"
+        'https://depot.galaxyproject.org/singularity/bioconductor-tximeta:1.8.0--r40_0' :
+        'quay.io/biocontainers/bioconductor-tximeta:1.8.0--r40_0' }"
 
     input:
     path ("kallisto/*")
